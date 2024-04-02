@@ -51,3 +51,28 @@ class NeuImgField(nn.Module):
             hs = self.out(hs)
         hs = hs.reshape([batch_size, num_points, -1])
         return hs
+
+class GroupEmbeddingSum(nn.Module):
+    
+    def __init__(self, dim_embedding, n_head, act=nn.Tanh()):
+        super().__init__()
+        self.n_head = n_head
+        self.dim_embedding = dim_embedding
+        
+        self.net_embed = nn.Sequential(*[
+            nn.Conv1d(n_head, dim_embedding*n_head, 1, groups=n_head), act,
+            nn.Conv1d(dim_embedding*n_head, dim_embedding*n_head, 1, groups=n_head), act,
+            nn.Conv1d(dim_embedding*n_head, dim_embedding*n_head, 1, groups=n_head)
+        ])
+        self.net_post = nn.Sequential(*[
+            nn.Linear(dim_embedding, dim_embedding*2), act,
+            nn.Linear(dim_embedding*2, dim_embedding*2), act,
+            nn.Linear(dim_embedding*2, 1), nn.Sigmoid()
+        ])
+    
+    def forward(self, xs, mask=None):
+        hs = self.net_embed(xs).reshape([xs.shape[0], self.n_head, -1])
+        if mask is not None:
+            hs = hs * mask
+        hs = self.net_post(torch.sum(hs, dim=1))
+        return hs
