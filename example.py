@@ -46,7 +46,7 @@ lang_tuples = [
     ("Indonesian", "id", "印尼语"),
     ("Filipino", "tl", "菲律宾语"),
     ("Hindi", "hi", "印地语"),
-    ("Traditional", "Chinese", "zh-Hant", "繁体中文"),
+    ("Traditional Chinese", "zh-Hant", "繁体中文"),
     ("Polish", "pl", "波兰语"),
     ("Czech", "cs", "捷克语"),
     ("Dutch", "nl", "荷兰语"),
